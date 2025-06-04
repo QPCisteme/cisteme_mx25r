@@ -275,4 +275,4 @@ static inline int z_impl_mx25r_is_writing(const struct device *dev)
     return api->mx25r_is_writing(dev);
 }
 
-#include <syscalls/mx25r.h>
+#include <syscalls/cisteme_mx25r.h>
