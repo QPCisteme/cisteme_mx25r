@@ -9,6 +9,7 @@
 
 static int mx25r_cmd(const struct device *dev, uint8_t cmd) 
 {
+    struct mx25r_data *data = dev->data;
     const struct mx25r_config *config = dev->config;
 
     uint8_t command = cmd;
@@ -38,6 +39,7 @@ static int reset(const struct device *dev)
 
 static int read_status(const struct device *dev, uint8_t *status) 
 {
+    struct mx25r_data *data = dev->data;
     const struct mx25r_config *config = dev->config;
 
     uint8_t command = CMD_RDSR;
@@ -53,6 +55,7 @@ static int read_status(const struct device *dev, uint8_t *status)
 
 static int write_status(const struct device *dev, uint8_t status) 
 {
+    struct mx25r_data *data = dev->data;
     const struct mx25r_config *config = dev->config;
 
     uint8_t command[2] = {CMD_WRSR, status};
@@ -64,6 +67,7 @@ static int write_status(const struct device *dev, uint8_t status)
 
 static int read_security(const struct device *dev, uint8_t *security) 
 {
+    struct mx25r_data *data = dev->data;
     const struct mx25r_config *config = dev->config;
 
     uint8_t command = CMD_RDSCUR;
@@ -79,6 +83,7 @@ static int read_security(const struct device *dev, uint8_t *security)
 
 static int write_security(const struct device *dev, uint8_t security) 
 {
+    struct mx25r_data *data = dev->data;
     const struct mx25r_config *config = dev->config;
 
     uint8_t command[2] = {CMD_WRSR, security};
@@ -90,6 +95,7 @@ static int write_security(const struct device *dev, uint8_t security)
 
 static int read_id(const struct device *dev, uint8_t *id) 
 {
+    struct mx25r_data *data = dev->data;
     const struct mx25r_config *config = dev->config;
 
     uint8_t command = CMD_RDID;
@@ -105,6 +111,7 @@ static int read_id(const struct device *dev, uint8_t *id)
 
 static int read_rems(const struct device *dev, uint8_t *rems) 
 {
+    struct mx25r_data *data = dev->data;
     const struct mx25r_config *config = dev->config;
 
     uint8_t command[4] = {CMD_REMS, DUMMY, DUMMY, 0x00};
@@ -120,6 +127,7 @@ static int read_rems(const struct device *dev, uint8_t *rems)
 
 static int read_res(const struct device *dev, uint8_t *res) 
 {
+    struct mx25r_data *data = dev->data;
     const struct mx25r_config *config = dev->config;
 
     uint8_t command = CMD_RES;
@@ -135,6 +143,7 @@ static int read_res(const struct device *dev, uint8_t *res)
 
 static int read_config(const struct device *dev, uint8_t *conf) 
 {
+    struct mx25r_data *data = dev->data;
     const struct mx25r_config *config = dev->config;
 
     uint8_t command = CMD_RDCR;
@@ -148,43 +157,46 @@ static int read_config(const struct device *dev, uint8_t *conf)
     return ret;
 }
 
-static int write_mem(const struct device *dev, uint16_t addr, uint8_t *data, uint16_t data_size) 
+static int write_mem(const struct device *dev, uint16_t addr, uint8_t *buf, uint16_t buf_size) 
 {
+    struct mx25r_data *data = dev->data;
     const struct mx25r_config *config = dev->config;
 
     uint8_t command[4] = {  CMD_PP, 
                             (uint8_t)((addr >> 16) & 0xFF), 
                             (uint8_t)((addr >> 8) & 0xFF), 
                             (uint8_t)(addr & 0xFF)};
-    uint8_t data_tx[data_size + 4];
+    uint8_t data_tx[buf_size + 4];
     memcpy(data_tx, &command, 4);
-    memcpy(&data_tx[4], data, data_size);
+    memcpy(&data_tx[4], buf, buf_size);
     
     data->buf_tx = (struct spi_buf){.buf = data_tx, .len = sizeof(data_tx)};
 
     return spi_write_dt(&config->spi, &data->buf_set_tx);
 }
 
-static int read_mem(const struct device *dev, uint16_t addr, uint8_t *data, uint16_t data_size) 
+static int read_mem(const struct device *dev, uint16_t addr, uint8_t *buf, uint16_t buf_size) 
 {
+    struct mx25r_data *data = dev->data;
     const struct mx25r_config *config = dev->config;
 
     uint8_t command[4] = {  CMD_READ,
                             (uint8_t)((addr >> 16) & 0xFF), 
                             (uint8_t)((addr >> 8) & 0xFF), 
                             (uint8_t)(addr & 0xFF)};
-    uint8_t data_rx[data_size+4];
+    uint8_t data_rx[buf_size+4];
 
     data->buf_tx = (struct spi_buf){.buf = command, .len = sizeof(command)};
     data->buf_rx = (struct spi_buf){.buf = data_rx, .len = sizeof(data_rx)};
 
     int ret = spi_transceive_dt(&config->spi, &data->buf_set_tx, &data->buf_set_rx);
-    memcpy(data, &data[4], data_size);
+    memcpy(buf, &data[4], buf_size);
     return ret;
 }
 
 static int mx25r_erase(const struct device *dev, uint8_t cmd, uint16_t addr) 
 {
+    struct mx25r_data *data = dev->data;
     const struct mx25r_config *config = dev->config;
 
     uint8_t command[4] = {  cmd, 
@@ -217,21 +229,22 @@ static int erase_chip(const struct device *dev)
     return mx25r_cmd(dev, CMD_CE);
 }
 
-static int fread_mem(const struct device *dev, uint16_t addr, uint8_t *data, uint16_t data_size) 
+static int fread_mem(const struct device *dev, uint16_t addr, uint8_t *buf, uint16_t buf_size) 
 {
+    struct mx25r_data *data = dev->data;
     const struct mx25r_config *config = dev->config;
 
     uint8_t command[4] = {  CMD_FREAD,
                             (uint8_t)((addr >> 16) & 0xFF), 
                             (uint8_t)((addr >> 8) & 0xFF), 
                             (uint8_t)(addr & 0xFF)};
-    uint8_t data_rx[data_size+5];
+    uint8_t data_rx[buf_size+5];
 
     data->buf_tx = (struct spi_buf){.buf = command, .len = sizeof(command)};
     data->buf_rx = (struct spi_buf){.buf = data_rx, .len = sizeof(data_rx)};
 
     int ret = spi_transceive_dt(&config->spi, &data->buf_set_tx, &data->buf_set_rx);
-    memcpy(data, &data[5], data_size);
+    memcpy(buf, &data[5], buf_size);
     return ret;
 }
 
