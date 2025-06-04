@@ -176,15 +176,15 @@ static inline int z_impl_mx25r_read_res(const struct device *dev, uint8_t *res)
     return api->mx25r_read_res(dev, res);
 }
 
-__syscall int mx25r_read_config(const struct device *dev, uint8_t *config);
+__syscall int mx25r_read_config(const struct device *dev, uint8_t *conf);
 
-static inline int z_impl_mx25r_read_config(const struct device *dev, uint8_t *config)
+static inline int z_impl_mx25r_read_config(const struct device *dev, uint8_t *conf)
 {
     const struct mx25r_api *api = (const struct mx25r_api *)dev->api;
     if (api->mx25r_read_config == NULL) {
         return -ENOSYS;
     }
-    return api->mx25r_read_config(dev, config);
+    return api->mx25r_read_config(dev, conf);
 }
 
 __syscall int mx25r_write_mem(const struct device *dev, uint16_t addr, uint8_t *data, uint16_t data_size);
