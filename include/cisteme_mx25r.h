@@ -36,7 +36,7 @@ __subsystem struct mx25r_api {
     int (*mx25r_write_status)(const struct device *dev, uint8_t status);
 
     int (*mx25r_read_security)(const struct device *dev, uint8_t *security);
-    int (*mx25r_write_security)(const struct device *dev, uint8_t *security);
+    int (*mx25r_write_security)(const struct device *dev, uint8_t security);
 
     int (*mx25r_read_id)(const struct device *dev, uint8_t *id);
     int (*mx25r_read_rems)(const struct device *dev, uint8_t *rems);
@@ -132,9 +132,9 @@ static inline int z_impl_mx25r_read_security(const struct device *dev, uint8_t *
     return api->mx25r_read_security(dev, security);
 }
 
-__syscall int mx25r_write_security(const struct device *dev, uint8_t *security);
+__syscall int mx25r_write_security(const struct device *dev, uint8_t security);
 
-static inline int z_impl_mx25r_write_security(const struct device *dev, uint8_t *security)
+static inline int z_impl_mx25r_write_security(const struct device *dev, uint8_t security)
 {
     const struct mx25r_api *api = (const struct mx25r_api *)dev->api;
     if (api->mx25r_write_security == NULL) {

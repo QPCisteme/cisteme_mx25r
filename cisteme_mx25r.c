@@ -62,7 +62,7 @@ static int write_status(const struct device *dev, uint8_t status)
     
     data->buf_tx = (struct spi_buf){.buf = command, .len = sizeof(command)};
 
-    return spi_transceive_dt(&config->spi, &data->buf_set_tx);
+    return spi_write_dt(&config->spi, &data->buf_set_tx);
 }
 
 static int read_security(const struct device *dev, uint8_t *security) 
