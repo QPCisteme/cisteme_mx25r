@@ -1,0 +1,5 @@
+description: "CISTEME MX25R NOR Flash Driver"
+
+compatible: "cisteme,mx25r"
+
+include: [spi-device.yaml]

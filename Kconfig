@@ -1,0 +1,7 @@
+menuconfig CISTEME_MX25R
+    bool "Enable CISTEME Custom MX25R support"
+    default y
+    depends on DT_HAS_CISTEME_MX25R_ENABLED
+    select SPI
+    help
+      Custom driver for Macronix MX25R flash or others compatible NOR-Flash memory

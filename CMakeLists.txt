@@ -1,0 +1,6 @@
+if (CONFIG_CISTEME_MX25R)
+  zephyr_library()
+  zephyr_syscall_header(${ZEPHYR_CISTEME_MX25R_MODULE_DIR}/include/cisteme_mx25r.h)
+  zephyr_include_directories(include)
+  zephyr_library_sources(cisteme_mx25r.c)
+endif(CONFIG_CISTEME_MX25R)
