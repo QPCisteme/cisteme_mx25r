@@ -105,7 +105,7 @@ static int read_id(const struct device *dev, uint8_t *id)
     data->buf_rx = (struct spi_buf){.buf = data_rx, .len = sizeof(data_rx)};
 
     int ret = spi_transceive_dt(&config->spi, &data->buf_set_tx, &data->buf_set_rx);
-    memcpy(id, &data[1], 3);
+    memcpy(id, &data_rx[1], 3);
     return ret;
 }
 
