@@ -98,10 +98,10 @@ static int read_id(const struct device *dev, uint8_t *id)
     struct mx25r_data *data = dev->data;
     const struct mx25r_config *config = dev->config;
 
-    uint8_t command = CMD_RDID;
+    uint8_t command[4] = {CMD_RDID, DUMMY, DUMMY, DUMMY};
     uint8_t data_rx[4];
 
-    data->buf_tx = (struct spi_buf){.buf = &command, .len = 1};
+    data->buf_tx = (struct spi_buf){.buf = command, .len = sizeof(command)};
     data->buf_rx = (struct spi_buf){.buf = data_rx, .len = sizeof(data_rx)};
 
     int ret = spi_transceive_dt(&config->spi, &data->buf_set_tx, &data->buf_set_rx);
@@ -251,8 +251,10 @@ static int fread_mem(const struct device *dev, uint16_t addr, uint8_t *buf, uint
 static bool is_writing(const struct device *dev)
 {
     uint8_t status;
-    read_status(dev, &status);
-    return status&0x01 ? true : false;
+    if(read_status(dev, &status)<0)
+        return true;
+    else
+        return status&0x01 ? true : false;
 }
 
 static const struct mx25r_api api = {
@@ -290,7 +292,7 @@ static int mx25r_init(const struct device *dev)
 
     data->buf_set_rx.buffers = &data->buf_rx;
     data->buf_set_rx.count = 1;
-    
+
     return 0;
 }
 
