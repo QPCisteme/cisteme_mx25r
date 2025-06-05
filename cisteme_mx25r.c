@@ -98,10 +98,10 @@ static int read_id(const struct device *dev, uint8_t *id)
     struct mx25r_data *data = dev->data;
     const struct mx25r_config *config = dev->config;
 
-    uint8_t command[4] = {CMD_RDID, DUMMY, DUMMY, DUMMY};
+    uint8_t command = CMD_RDID;
     uint8_t data_rx[4];
 
-    data->buf_tx = (struct spi_buf){.buf = command, .len = sizeof(command)};
+    data->buf_tx = (struct spi_buf){.buf = &command, .len = 1};
     data->buf_rx = (struct spi_buf){.buf = data_rx, .len = sizeof(data_rx)};
 
     int ret = spi_transceive_dt(&config->spi, &data->buf_set_tx, &data->buf_set_rx);
@@ -296,17 +296,17 @@ static int mx25r_init(const struct device *dev)
     return 0;
 }
 
-#define CISTEME_MX25R_DEFINE(inst)                                                  \
-    static const const struct mx25r_config mx25r_config_##inst = {                  \
-        .spi = SPI_DT_SPEC_INST_GET(inst, SPI_WORD_SET(8) | SPI_TRANSFER_MSB, 0),   \
-    };                                                                              \
-    DEVICE_DT_INST_DEFINE(inst,                                                     \
-                          mx25r_init,                                               \
-                          NULL,                                                     \
-                          &data,                                                    \
-                          &mx25r_config_##inst,                                     \
-                          POST_KERNEL,                                              \
-                          90,                                                       \
+#define CISTEME_MX25R_DEFINE(inst)                                             \
+    static const const struct mx25r_config mx25r_config_##inst = {             \
+        .spi = SPI_DT_SPEC_INST_GET(inst, SPIOP, 0),                           \
+    };                                                                         \
+    DEVICE_DT_INST_DEFINE(inst,                                                \
+                          mx25r_init,                                          \
+                          NULL,                                                \
+                          &data,                                               \
+                          &mx25r_config_##inst,                                \
+                          POST_KERNEL,                                         \
+                          90,                                                  \
                           &api);
 
 DT_INST_FOREACH_STATUS_OKAY(CISTEME_MX25R_DEFINE)

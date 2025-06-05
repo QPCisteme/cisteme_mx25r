@@ -13,6 +13,9 @@
 #include <zephyr/drivers/spi.h>
 #include "cisteme_mx25r_regmap.h"
 
+
+#define SPIOP	SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_MODE_CPOL | SPI_MODE_CPHA
+
 struct mx25r_config {
     struct spi_dt_spec spi;
 };
