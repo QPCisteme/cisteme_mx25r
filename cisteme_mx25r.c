@@ -49,7 +49,7 @@ static int read_status(const struct device *dev, uint8_t *status)
     data->buf_rx = (struct spi_buf){.buf = data_rx, .len = sizeof(data_rx)};
 
     int ret = spi_transceive_dt(&config->spi, &data->buf_set_tx, &data->buf_set_rx);
-    memcpy(status, &data[1], 1);
+    memcpy(status, &data_rx[1], 1);
     return ret;
 }
 
@@ -77,7 +77,7 @@ static int read_security(const struct device *dev, uint8_t *security)
     data->buf_rx = (struct spi_buf){.buf = data_rx, .len = sizeof(data_rx)};
 
     int ret = spi_transceive_dt(&config->spi, &data->buf_set_tx, &data->buf_set_rx);
-    memcpy(security, &data[1], 1);
+    memcpy(security, &data_rx[1], 1);
     return ret;
 }
 
@@ -121,7 +121,7 @@ static int read_rems(const struct device *dev, uint8_t *rems)
     data->buf_rx = (struct spi_buf){.buf = data_rx, .len = sizeof(data_rx)};
 
     int ret = spi_transceive_dt(&config->spi, &data->buf_set_tx, &data->buf_set_rx);
-    memcpy(rems, &data[4], 2);
+    memcpy(rems, &data_rx[4], 2);
     return ret;
 }
 
@@ -137,7 +137,7 @@ static int read_res(const struct device *dev, uint8_t *res)
     data->buf_rx = (struct spi_buf){.buf = data_rx, .len = sizeof(data_rx)};
 
     int ret = spi_transceive_dt(&config->spi, &data->buf_set_tx, &data->buf_set_rx);
-    memcpy(res, &data[4], 1);
+    memcpy(res, &data_rx[4], 1);
     return ret;
 }
 
@@ -153,7 +153,7 @@ static int read_config(const struct device *dev, uint8_t *conf)
     data->buf_rx = (struct spi_buf){.buf = data_rx, .len = sizeof(data_rx)};
 
     int ret = spi_transceive_dt(&config->spi, &data->buf_set_tx, &data->buf_set_rx);
-    memcpy(conf, &data[1], 2);
+    memcpy(conf, &data_rx[1], 2);
     return ret;
 }
 
@@ -190,7 +190,7 @@ static int read_mem(const struct device *dev, uint16_t addr, uint8_t *buf, uint1
     data->buf_rx = (struct spi_buf){.buf = data_rx, .len = sizeof(data_rx)};
 
     int ret = spi_transceive_dt(&config->spi, &data->buf_set_tx, &data->buf_set_rx);
-    memcpy(buf, &data[4], buf_size);
+    memcpy(buf, &data_rx[4], buf_size);
     return ret;
 }
 
@@ -244,7 +244,7 @@ static int fread_mem(const struct device *dev, uint16_t addr, uint8_t *buf, uint
     data->buf_rx = (struct spi_buf){.buf = data_rx, .len = sizeof(data_rx)};
 
     int ret = spi_transceive_dt(&config->spi, &data->buf_set_tx, &data->buf_set_rx);
-    memcpy(buf, &data[5], buf_size);
+    memcpy(buf, &data_rx[5], buf_size);
     return ret;
 }
 
