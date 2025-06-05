@@ -167,7 +167,7 @@ static int write_mem(const struct device *dev, uint16_t addr, uint8_t *buf, uint
                             (uint8_t)((addr >> 8) & 0xFF), 
                             (uint8_t)(addr & 0xFF)};
     uint8_t data_tx[buf_size + 4];
-    memcpy(data_tx, &command, 4);
+    memcpy(data_tx, command, 4);
     memcpy(&data_tx[4], buf, buf_size);
     
     data->buf_tx = (struct spi_buf){.buf = data_tx, .len = sizeof(data_tx)};
