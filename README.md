@@ -1,68 +1,35 @@
-# Template Driver Zephyr
+# Interface MX25R (NOR Flash)
 
-Structure de base pour la création d'un driver personnalisé ZephyrRTOS
+Cette librairie permet de s'interfacer avec une flash Macronix MX25R (ou compatible)
 
-## dts/bindings
+## Importation du module
 
-Modifier __vendor-prefixes.txt__ avec :
-```txt
-fabricant[TAB]device
+L'interface est disponible dans le manifest CISTEME, accessible via [ce lien](https://github.com/QPCisteme/zephyr_cisteme-manifest).
+
+## Utilisation
+Une fois le module importé, déclarer la flash dans le DeviceTree à l'aide de la compatibilité *cisteme,mx25r*
+
+<u>Exemple nRF52840DK :</u>
+
 ```
-**Utiliser le bloc note**, la tabulation de VSCode ne fonctionne pas
-
-Ensuite modifier le fichier yaml pour définir les propriétés/bus obligatoires dans le devicetree
-
-## include
-
-Modifier/supprimer la regmap selon les registres nécessaires
-
-Dans le header :
-- Importer les librairies nécessaires
-- Remplir la configuration du device (valeurs en lecture seule : bus, constantes de configuration, ...)
-- Remplir la data du device (valeurs modifiées à l'utilisation : valeur de registres)
-- Déclarer les typedef fonctions
-- Remplir l'API avec les fonctions souhaitées
-- Pour chaque fonction 2 déclarations :
-    - syscall : permet à Zephyr d'appeler la fonction depuis l'API
-    - z_impl : fait la relation entre le syscall et la fonction C
-- Enfin inclure le fichier __syscalls/device.h__
-
-**NB :** le fichier syscall est créé lors de la première compilation, ainsi il n'existe pas encore et crée une erreur, il suffit de compiler une seconde fois pour qu'elle s'efface
-
-## zephyr
-
-Le fichier __module.yml__ indique à zephyr la position des différents composants du module. En respectant la structure du template rien à modifier ici.
-
-## .c
-
-Le premier define est en relation avec la mention de compatibilité créé (fichier yaml)
-
-Le fichier contient ensuite la définition des fonctions. Celles-ci sont utilisées pour remplir l'API
-
-Il faut ensuite créer la structure de données du device ainsi que la fonction __init__ appelée automatiquement lors de la création
-
-Enfin utiliser la macro pour créer l'instance à partir du DTS
+&spi2 {
+    compatible = "nordic,nrf-spim";
+    status = "okay";
+    pinctrl-0 = <&spi2_default>;
+    pinctrl-1 = <&spi2_sleep>;
+    pinctrl-names = "default", "sleep";
+    cs-gpios = <&gpio0 17 GPIO_ACTIVE_LOW>;
+    mx25r: mx25r@0 {
+        status="okay";
+        compatible = "cisteme,mx25r";
+        reg = <0>;
+        spi-max-frequency = <8000000>;
+        label = "MX25R64";
+    };
+};
+```
+Dans le code C il suffit ensuite d'appeler la flash à l'aide d'une fonction DEVICE_DT_GET comme par exemple :
 ```c
-DEVICE_DT_INST_DEFINE(  inst,
-                        init_function,
-                        power_management_isr,
-                        data_structure_ptr,
-                        config_structure_ptr,
-                        init_timing,
-                        init_prio,
-                        api_structure_ptr);
-
-DT_INST_FOREACH_STATUS_OKAY(TEMPLATE_DEFINE)
+static const struct device *flash = DEVICE_DT_GET_ANY(cisteme_mx25r);
 ```
-
-La dernière ligne permet de générer automatiquement l'instance pour chaque device présent dans le devicetree
-
-## CMakeLists
-
-Inclus les fichiers c et le fichier syscall lors de la compilation
-
-## KConfig
-
-Permet de définir les flags de config (sélectionnable ou non) qui peuvent être appelés dans le C.
-
-Défini aussi les dépendances et les librairies importées par le driver
+Qui permet de récupérer n'importe quelle instance.
