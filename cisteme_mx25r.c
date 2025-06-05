@@ -285,11 +285,17 @@ static int mx25r_init(const struct device *dev)
     struct mx25r_data *data = dev->data;
     const struct mx25r_config *config = dev->config;
 
+    data->buf_set_tx.buffers = &data->buf_tx;
+    data->buf_set_tx.count = 1;
+
+    data->buf_set_rx.buffers = &data->buf_rx;
+    data->buf_set_rx.count = 1;
+    
     return 0;
 }
 
 #define CISTEME_MX25R_DEFINE(inst)                                                  \
-    static const const struct mx25r_config mx25r_config_##inst = {                        \
+    static const const struct mx25r_config mx25r_config_##inst = {                  \
         .spi = SPI_DT_SPEC_INST_GET(inst, SPI_WORD_SET(8) | SPI_TRANSFER_MSB, 0),   \
     };                                                                              \
     DEVICE_DT_INST_DEFINE(inst,                                                     \
